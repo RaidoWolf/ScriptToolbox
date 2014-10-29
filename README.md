@@ -3,7 +3,14 @@ PHPTools
 
 Random useful PHP scripts that can be used standalone or implemented into other PHP projects.
 
-dig.php - a basic form script that allows you to enter a domain name, and the server on which the script resides will perform a DNS lookup (hence "dig"), and return the results as a plain array, preceded by a convenient permalink that can be used to share a particular lookup.
+418.php - all this does is issue the elusive HTTP error code 418 (look it up if you're unfamiliar)
+base64.php - a simple tool to encode/decode base64 data
+dig.php - a basic form script that allows you to enter a domain name, and the server on which the script resides will perform a DNS lookup (hence "dig"), and return the results as a plain array
+invert_hex.php - a simple tool to invert hexadecimal values (useful for inverting hex color codes, which inverts the color)
+myip.php - a simple tool to display the client's IP address
+quad.php - a simple (and currently partially broken) tool to solve quadratic equations
+rgb_to_hex - a simple tool to convert 24-bit RGB values into 24-bit hex color codes
+translate_nato.php - a simple tool to translate a basic text string into NATO phoenetic code
 
 Copyright Notice:
 This software is provided with the Apache v2 license. For more information,
