@@ -50,7 +50,6 @@ for dir in `ls "$PWD"`; do
 				echo "Could not exit $dir repository. Check above for errors."
 				exit
 			fi
-		fi
 
 		# SVN REPOSITORIES
 		elif [ -d "$dir/.svn" ]; then
