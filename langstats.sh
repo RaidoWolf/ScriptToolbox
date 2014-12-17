@@ -9,7 +9,7 @@ if [ "$dir" == "" ]; then
 fi
 
 #get list of all files in directory
-files=$(find $dir -type f)
+files=$(find $dir -type f -not -path "*\.git/*")
 #get count of all files in directory
 cnt_all=$(echo "$files" | wc -l)
 
