@@ -52,6 +52,31 @@ for dir in `ls "$PWD"`; do
 			fi
 		fi
 
+		# SVN REPOSITORIES
+		elif [ -d "$dir/.svn" ]; then
+			echo "$dir is SVN repository. pulling..."
+			cd $dir
+			if [ "$?" != "0" ]; then
+				echo "Could not enter $dir repository from $PWD. Check above for errors."
+				failtoenter="1"
+			else
+				failtoenter="0"
+			fi
+			svn update
+			if [ "$?" != "0" ]; then
+				echo "Update of $dir failed. Check above for errors."
+			else
+				echo "$dir updated."
+			fi
+			if [ "$failtoenter" != "1" ]; then
+				cd ..
+			fi
+			if [ "$?" != "0" ]; then
+				echo "Could not exit $dir repository. Check above for errors."
+				exit
+			fi
+		fi
+
 	fi
 done
 exit
