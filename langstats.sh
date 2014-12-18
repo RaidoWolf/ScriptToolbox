@@ -1,17 +1,21 @@
 #!/bin/bash
-dir=$1
-if [ "$dir" == "" ]; then
-	echo "Directory to stat languages? (hit enter to use CWD)"
+
+#user input section
+dir=$1 #get first command-line parameter as $dir
+if [ "$dir" == "" ]; then #check if $dir not set from command line
+	echo "Directory to stat languages? (hit enter to use CWD)" #ask
 	read dir
-	if [ "$dir" == "" ]; then
-		dir="$PWD"
+	if [ "$dir" == "" ]; then #if still not set
+		dir="$PWD" #default to working dir
 	fi
 fi
 
 #get list of all files in directory
-files=$(find $dir -type f -not -path "*\.git/*")
+files=$(find $dir -type f ! -path "*\.git/*" ! -path "*\.hg/*" ! -path "*\.svn/*" ! -path "*\.cvs/*")
 #get count of all files in directory
 cnt_all=$(echo "$files" | wc -l)
+#get size of directory (in human-readable format)
+dir_size=$(du -hs "$dir")
 
 #count files for each language
 cnt_asm=$(	echo "$files" | grep -io \
@@ -30,13 +34,19 @@ cnt_dos=$(	echo "$files" | grep -io \
 	"\.dos$\|\.bat$\|\.cmd$" \
 | wc -l)
 cnt_html=$(	echo "$files" | grep -io \
-	"\.html$\|\.htm$" \
+	"\.html$\|\.htm$\|\.xhtml$\|\.xhtm$" \
+| wc -l)
+cnt_img=$(	echo "$files" | grep -io \
+	"\.jpg$\|\.jpeg$\|\.png$\|\.gif$\|\.tiff$\|\.ico$" \
 | wc -l)
 cnt_java=$(	echo "$files" | grep -io \
 	"\.java$" \
 | wc -l)
 cnt_js=$(	echo "$files" | grep -io \
 	"\.js$" \
+| wc -l)
+cnt_json=$(	echo "$files" | grep -io \
+	"\.json$" \
 | wc -l)
 cnt_pl=$(	echo "$files" | grep -io \
 	"\.pl$" \
@@ -56,7 +66,14 @@ cnt_rb=$(	echo "$files" | grep -io \
 cnt_sh=$(	echo "$files" | grep -io \
 	"\.sh$" \
 | wc -l)
+cnt_yaml=$(	echo "$files" | grep -io \
+	"\.yml$\|\.yaml$" \
+| wc -l)
+cnt_xml=$(	echo "$files" | grep -io \
+	"\.xml$" \
+| wc -l)
 
+#calculate ratio and percentage of each language against the directory
 rt_asm=$(	bc -l <<< "($cnt_asm	/ $cnt_all)")
 	pc_asm=$(	printf "%.2f" "`bc -l <<< "($rt_asm * 100)"`")
 rt_c=$(		bc -l <<< "($cnt_c		/ $cnt_all)")
@@ -69,10 +86,14 @@ rt_dos=$(	bc -l <<< "($cnt_dos	/ $cnt_all)")
 	pc_dos=$(	printf "%.2f" "`bc -l <<< "($rt_dos * 100)"`")
 rt_html=$(	bc -l <<< "($cnt_html	/ $cnt_all)")
 	pc_html=$(	printf "%.2f" "`bc -l <<< "($rt_html * 100)"`")
+rt_img=$(	bc -l <<< "($cnt_img	/ $cnt_all)")
+	pc_img=$(	printf "%.2f" "`bc -l <<< "($rt_img * 100)"`")
 rt_java=$(	bc -l <<< "($cnt_java	/ $cnt_all)")
 	pc_java=$(	printf "%.2f" "`bc -l <<< "($rt_java * 100)"`")
 rt_js=$(	bc -l <<< "($cnt_js		/ $cnt_all)")
 	pc_js=$(	printf "%.2f" "`bc -l <<< "($rt_js * 100)"`")
+rt_json=$(	bc -l <<< "($cnt_json	/ $cnt_all)")
+	pc_json=$(	printf "%.2f" "`bc -l <<< "($rt_json * 100)"`")
 rt_pl=$(	bc -l <<< "($cnt_pl		/ $cnt_all)")
 	pc_pl=$(	printf "%.2f" "`bc -l <<< "($rt_pl * 100)"`")
 rt_php=$(	bc -l <<< "($cnt_php	/ $cnt_all)")
@@ -85,10 +106,17 @@ rt_rb=$(	bc -l <<< "($cnt_rb		/ $cnt_all)")
 	pc_rb=$(	printf "%.2f" "`bc -l <<< "($rt_rb * 100)"`")
 rt_sh=$(	bc -l <<< "($cnt_sh		/ $cnt_all)")
 	pc_sh=$(	printf "%.2f" "`bc -l <<< "($rt_sh * 100)"`")
+rt_yaml=$(	bc -l <<< "($cnt_yaml	/ $cnt_all)")
+	pc_yaml=$(	printf "%.2f" "`bc -l <<< "($rt_yaml * 100)"`")
+rt_xml=$(	bc -l <<< "($cnt_xml	/ $cnt_all)")
+	pc_xml=$(	printf "%.2f" "`bc -l <<< "($rt_xml * 100)"`")
 
+#header of output
 echo "total files:      $cnt_all"
+echo "                  $dir_size"
 echo "-----------------------------------------"
 
+#put output, sorted alphabetically, into $langs variable
 langs="`\
 if (( "$cnt_asm" > "0" )); then
 	echo "Assembly:         $cnt_asm ($pc_asm%)"
@@ -108,11 +136,17 @@ fi
 if (( "$cnt_html" > "0" )); then
 	echo "HTML:             $cnt_html ($pc_html%)"
 fi
+if (( "$cnt_img" > "0" )); then
+	echo "Images:           $cnt_img ($pc_img%)"
+fi
 if (( "$cnt_java" > "0" )); then
 	echo "Java:             $cnt_java ($pc_java%)"
 fi
 if (( "$cnt_js" > "0" )); then
 	echo "JavaScript:       $cnt_js ($pc_js%)"
+fi
+if (( "$cnt_json" > "0" )); then
+	echo "JSON:             $cnt_json ($pc_json%)"
 fi
 if (( "$cnt_pl" > "0" )); then
 	echo "Perl:             $cnt_pl ($pc_pl%)"
@@ -132,9 +166,15 @@ fi
 if (( "$cnt_sh" > "0" )); then
 	echo "Shell:            $cnt_sh ($pc_sh%)"
 fi
+if (( "$cnt_yaml" > "0" )); then
+	echo "YAML:             $cnt_yaml ($pc_yaml%)"
+fi
+if (( "$cnt_xml" > "0" )); then
+	echo "XML:              $cnt_xml ($pc_xml%)"
+fi
 `"
 
+#sort lines of $langs in descending order by number of files
 echo "`echo "$langs" | sort -k2 -n --reverse`"
 
 exit
-
