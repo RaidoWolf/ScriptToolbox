@@ -1,4 +1,9 @@
 #!/bin/bash
+user=$(whoami)
+if [ "$user" != "root" ]; then
+	echo "This script must be run as root (sudo). Currently running as $user. Exiting."
+	exit
+fi
 echo "Add/Remove Promiscuous? (+/-)"
 	read whatdo
 echo "Interface to affect: (wlan0, etho0, etc.)"
