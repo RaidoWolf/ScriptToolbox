@@ -18,11 +18,17 @@ cnt_all=$(echo "$files" | wc -l)
 dir_size=$(du -hs "$dir")
 
 #count files for each language
+cnt_as=$(	echo "$files" | grep -io \
+	"\.as$\|\.as2$\|\.as3$" \
+| wc -l)
 cnt_asm=$(	echo "$files" | grep -io \
 	"\.asm$" \
 | wc -l)
 cnt_asp=$(	echo "$files" | grep -io \
 	"\.asp$\|\.aspx$" \
+| wc -l)
+cnt_aud=$(	echo "$files" | grep -io \
+	"\.wav$\|\.pcm$\|\.mp3$\|\.m4a$\|\.wma$\|\.aac$\|\.ogg$\|\.flac$\|\.alac$" \
 | wc -l)
 cnt_c=$(	echo "$files" | grep -io \
 	"\.c$\|\.h$" \
@@ -42,6 +48,9 @@ cnt_doc=$(	echo "$files" | grep -io \
 cnt_dos=$(	echo "$files" | grep -io \
 	"\.dos$\|\.bat$\|\.cmd$" \
 | wc -l)
+cnt_flv=$(	echo "$files" | grep -io \
+	"\.flv$\|\.swf$" \
+| wc -l)
 cnt_html=$(	echo "$files" | grep -io \
 	"\.html$\|\.htm$\|\.xhtml$\|\.xhtm$" \
 | wc -l)
@@ -57,8 +66,14 @@ cnt_js=$(	echo "$files" | grep -io \
 cnt_json=$(	echo "$files" | grep -io \
 	"\.json$" \
 | wc -l)
+cnt_lua=$(	echo "$files" | grep -io \
+	"\.lua$" \
+| wc -l)
 cnt_md=$(	echo "$files" | grep -io \
 	"\.md$\|\.markdown$" \
+| wc -l)
+cnt_oc=$(	echo "$files" | grep -io \
+	"\.m$" \
 | wc -l)
 cnt_pl=$(	echo "$files" | grep -io \
 	"\.pl$" \
@@ -81,6 +96,9 @@ cnt_sh=$(	echo "$files" | grep -io \
 cnt_txt=$(	echo "$files" | grep -io \
 	"\.txt$" \
 | wc -l)
+cnt_vid=$(	echo "$files" | grep -io \
+	"\.mp4$\|\.m4v$\|\.mkv$\|\.webm$\|\.avi$" \
+| wc -l)
 cnt_xml=$(	echo "$files" | grep -io \
 	"\.xml$" \
 | wc -l)
@@ -89,10 +107,14 @@ cnt_yaml=$(	echo "$files" | grep -io \
 | wc -l)
 
 #calculate ratio and percentage of each language against the directory
+rt_as=$(	bc -l <<< "($cnt_as		/ $cnt_all)")
+	pc_as=$(	printf "%.2f" "`bc -l <<< "($rt_as * 100)"`")
 rt_asm=$(	bc -l <<< "($cnt_asm	/ $cnt_all)")
 	pc_asm=$(	printf "%.2f" "`bc -l <<< "($rt_asm * 100)"`")
 rt_asp=$(	bc -l <<< "($cnt_asp	/ $cnt_all)")
 	pc_asp=$(	printf "%.2f" "`bc -l <<< "($rt_asp * 100)"`")
+rt_aud=$(	bc -l <<< "($cnt_aud	/ $cnt_all)")
+	pc_aud=$(	printf "%.2f" "`bc -l <<< "($rt_aud * 100)"`")
 rt_c=$(		bc -l <<< "($cnt_c		/ $cnt_all)")
 	pc_c=$(		printf "%.2f" "`bc -l <<< "($rt_c * 100)"`")
 rt_cpp=$(	bc -l <<< "($cnt_cpp	/ $cnt_all)")
@@ -105,6 +127,8 @@ rt_doc=$(	bc -l <<< "($cnt_doc	/ $cnt_all)")
 	pc_doc=$(	printf "%.2f" "`bc -l <<< "($rt_doc * 100)"`")
 rt_dos=$(	bc -l <<< "($cnt_dos	/ $cnt_all)")
 	pc_dos=$(	printf "%.2f" "`bc -l <<< "($rt_dos * 100)"`")
+rt_flv=$(	bc -l <<< "($cnt_flv	/ $cnt_all)")
+	pc_flv=$(	printf "%.2f" "`bc -l <<< "($rt_flv * 100)"`")
 rt_html=$(	bc -l <<< "($cnt_html	/ $cnt_all)")
 	pc_html=$(	printf "%.2f" "`bc -l <<< "($rt_html * 100)"`")
 rt_img=$(	bc -l <<< "($cnt_img	/ $cnt_all)")
@@ -115,8 +139,12 @@ rt_js=$(	bc -l <<< "($cnt_js		/ $cnt_all)")
 	pc_js=$(	printf "%.2f" "`bc -l <<< "($rt_js * 100)"`")
 rt_json=$(	bc -l <<< "($cnt_json	/ $cnt_all)")
 	pc_json=$(	printf "%.2f" "`bc -l <<< "($rt_json * 100)"`")
+rt_lua=$(	bc -l <<< "($cnt_lua	/ $cnt_all)")
+	pc_lua=$(	printf "%.2f" "`bc -l <<< "($rt_lua * 100)"`")
 rt_md=$(	bc -l <<< "($cnt_md		/ $cnt_all)")
 	pc_md=$(	printf "%.2f" "`bc -l <<< "($rt_md * 100)"`")
+rt_oc=$(	bc -l <<< "($cnt_oc		/ $cnt_all)")
+	pc_oc=$(	printf "%.2f" "`bc -l <<< "($rt_oc * 100)"`")
 rt_pl=$(	bc -l <<< "($cnt_pl		/ $cnt_all)")
 	pc_pl=$(	printf "%.2f" "`bc -l <<< "($rt_pl * 100)"`")
 rt_php=$(	bc -l <<< "($cnt_php	/ $cnt_all)")
@@ -131,6 +159,8 @@ rt_sh=$(	bc -l <<< "($cnt_sh		/ $cnt_all)")
 	pc_sh=$(	printf "%.2f" "`bc -l <<< "($rt_sh * 100)"`")
 rt_txt=$(	bc -l <<< "($cnt_txt	/ $cnt_all)")
 	pc_txt=$(	printf "%.2f" "`bc -l <<< "($rt_txt * 100)"`")
+rt_vid=$(	bc -l <<< "($cnt_vid	/ $cnt_all)")
+	pc_vid=$(	printf "%.2f" "`bc -l <<< "($rt_vid * 100)"`")
 rt_xml=$(	bc -l <<< "($cnt_xml	/ $cnt_all)")
 	pc_xml=$(	printf "%.2f" "`bc -l <<< "($rt_xml * 100)"`")
 rt_yaml=$(	bc -l <<< "($cnt_yaml	/ $cnt_all)")
@@ -143,11 +173,17 @@ echo "-----------------------------------------"
 
 #put output, sorted alphabetically, into $langs variable
 langs="`\
+if (( "$cnt_as" > "0" )); then
+	echo "ActionScript:     $cnt_as ($pc_as%)"
+fi
 if (( "$cnt_asp" > "0" )); then
 	echo "ASP.NET:          $cnt_asp ($pc_asp%)"
 fi
 if (( "$cnt_asm" > "0" )); then
 	echo "Assembly:         $cnt_asm ($pc_asm%)"
+fi
+if (( "$cnt_aud" > "0" )); then
+	echo "Audio:            $cnt_aud ($pc_aud%)"
 fi
 if (( "$cnt_c" > "0" )); then
 	echo "C:                $cnt_c ($pc_c%)"
@@ -167,6 +203,9 @@ fi
 if (( "$cnt_dos" > "0" )); then
 	echo "DOS:              $cnt_dos ($pc_dos%)"
 fi
+if (( "$cnt_flv" > "0" )); then
+	echo "Flash-Binary:     $cnt_flv ($pc_flv%)"
+fi
 if (( "$cnt_html" > "0" )); then
 	echo "HTML:             $cnt_html ($pc_html%)"
 fi
@@ -182,8 +221,14 @@ fi
 if (( "$cnt_json" > "0" )); then
 	echo "JSON:             $cnt_json ($pc_json%)"
 fi
+if (( "$cnt_lua" > "0" )); then
+	echo "Lua:              $cnt_lua ($pc_lua%)"
+fi
 if (( "$cnt_md" > "0" )); then
 	echo "MarkDown:         $cnt_md ($pc_md%)"
+fi
+if (( "$cnt_oc" > "0" )); then
+	echo "Objective-C:      $cnt_oc ($pc_oc%)"
 fi
 if (( "$cnt_pl" > "0" )); then
 	echo "Perl:             $cnt_pl ($pc_pl%)"
@@ -206,6 +251,9 @@ fi
 if (( "$cnt_txt" > "0" )); then
 	echo "Text:             $cnt_txt ($pc_txt%)"
 fi
+if (( "$cnt_vid" > "0" )); then
+	echo "Video             $cnt_aud ($pc_aud%)"
+fi
 if (( "$cnt_xml" > "0" )); then
 	echo "XML:              $cnt_xml ($pc_xml%)"
 fi
@@ -218,3 +266,4 @@ fi
 echo "`echo "$langs" | sort -k2 -n --reverse`"
 
 exit
+
