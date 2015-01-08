@@ -13,7 +13,7 @@ for dir in `ls "$PWD"`; do
 			else
 				failtoenter="0"
 			fi
-			git pull
+			git pull --no-edit
 			if [ "$?" != "0" ]; then
 				echo "Pull of $dir failed. Check above for errors."
 			else
@@ -51,9 +51,9 @@ for dir in `ls "$PWD"`; do
 				exit
 			fi
 
-		# SVN REPOSITORIES
+		# SUBVERSION REPOSITORIES
 		elif [ -d "$dir/.svn" ]; then
-			echo "$dir is SVN repository. pulling..."
+			echo "$dir is subversion repository. pulling..."
 			cd $dir
 			if [ "$?" != "0" ]; then
 				echo "Could not enter $dir repository from $PWD. Check above for errors."

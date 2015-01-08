@@ -1,5 +1,14 @@
 #!/bin/bash
 
+### CONFIGURATION ###
+
+qual="7" #quality (scale -1 (very low) to 10 (very high)) of variable-rate ogg-vorbis audio
+# in my experience, I have found quality 7 to be the ideal balance of
+# quality and compression for audio that is in flac format. Feel free
+# to disagree with me and change this value.
+
+#####################
+
 dir="$1"
 if [ "$dir" == "" ]; then
 	echo "Directory of FLAC album to convert?"
@@ -35,7 +44,7 @@ else
 	exit
 fi
 
-oggenc -q 7 *.flac
+oggenc -q $qual *.flac
 if [ "$?" != "0" ]; then
 	echo "oggenc failed. exiting."
 	exit
