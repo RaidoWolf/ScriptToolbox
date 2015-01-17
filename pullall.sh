@@ -38,6 +38,7 @@ for dir in `ls "$PWD"`; do
 				failtoenter="0"
 			fi
 			hg pull
+			hg update
 			if [ "$?" != "0" ]; then
 				echo "Pull of $dir failed. Check above for errors."
 			else
