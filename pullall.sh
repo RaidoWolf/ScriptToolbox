@@ -13,8 +13,10 @@ for dir in `ls "$PWD"`; do
 			else
 				failtoenter="0"
 			fi
-			git pull --no-edit
-			if [ "$?" != "0" ]; then
+			git pull --recurse-submodules --no-edit
+			qprev="$?"
+			git submodule update --recursive
+			if [ "$?" != "0" ] && [ "$qprev" != "0" ]; then
 				echo "Pull of $dir failed. Check above for errors."
 			else
 				echo "$dir updated."
@@ -38,8 +40,9 @@ for dir in `ls "$PWD"`; do
 				failtoenter="0"
 			fi
 			hg pull
+			qprev="$?"
 			hg update
-			if [ "$?" != "0" ]; then
+			if [ "$?" != "0" ] && [ "$qprev" != "0" ]; then
 				echo "Pull of $dir failed. Check above for errors."
 			else
 				echo "$dir updated."
