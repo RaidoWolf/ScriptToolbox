@@ -14,9 +14,30 @@ for dir in `ls "$PWD"`; do
 				failtoenter="0"
 			fi
 			git pull --recurse-submodules --no-edit
-			qprev="$?"
-			git submodule update --recursive
-			if [ "$?" != "0" ] && [ "$qprev" != "0" ]; then
+			return1="$?"
+			if [ "$return1" == "0" ]; then
+				git submodule update --recursive
+				return2="$?"
+			else
+				git submodule update
+				return3="$?"
+				git submodule foreach git pull origin master
+				return4="$?"
+			fi
+			if [ "$return1" == "0" -a "$return2" == "0" -o "$return3" == "0" -a "$return4" == "0" ]; then
+				fail="0" #no-error
+			else
+				git fetch origin
+				return5="$?"
+				git reset --hard origin/master
+				return6="$?"
+				if [ "$return5" == "0" && "$return6" == "0" ]; then
+					fail="0"
+				else
+					fail="1" #error
+				fi
+			fi
+			if [ "$fail" != "0" ]; then
 				echo "Pull of $dir failed. Check above for errors."
 			else
 				echo "$dir updated."
@@ -40,9 +61,15 @@ for dir in `ls "$PWD"`; do
 				failtoenter="0"
 			fi
 			hg pull
-			qprev="$?"
+			return1="$?"
 			hg update
-			if [ "$?" != "0" ] && [ "$qprev" != "0" ]; then
+			return2="$?"
+			if [ "$return1" == "0" && "$return2" == "0" ]; then
+				fail="0" #no-error
+			else
+				fail="1" #error
+			fi
+			if [ "$fail" != "0" ]; then
 				echo "Pull of $dir failed. Check above for errors."
 			else
 				echo "$dir updated."
@@ -66,7 +93,13 @@ for dir in `ls "$PWD"`; do
 				failtoenter="0"
 			fi
 			svn update
-			if [ "$?" != "0" ]; then
+			return1="$?"
+			if [ "$return1" == "0" ]; then
+				fail="0" #no-error
+			else
+				fail="1" #error
+			fi
+			if [ "$fail" != "0" ]; then
 				echo "Update of $dir failed. Check above for errors."
 			else
 				echo "$dir updated."
