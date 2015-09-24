@@ -1,9 +1,4 @@
 #!/bin/bash
-
-#######CONFIG#######
-DONOTRESET="0" #0|1 - this will prevent local changes from getting erased in the event of merge conflicts
-####################
-
 failtoenter="0"
 for dir in `ls "$PWD"`; do
 	if [ -d "$dir" ]; then
@@ -32,18 +27,14 @@ for dir in `ls "$PWD"`; do
 			if [ "$return1" == "0" -a "$return2" == "0" -o "$return3" == "0" -a "$return4" == "0" ]; then
 				fail="0" #no-error
 			else
-				if [ "$DONOTRESET" == "0" ]; then
-					git fetch origin
-					return5="$?"
-					git reset --hard origin/master
-					return6="$?"
-					if [ "$return5" == "0" && "$return6" == "0" ]; then
-						fail="0"
-					else
-						fail="1" #error
-					fi
-				else
+				git fetch origin
+				return5="$?"
+				git reset --hard origin/master
+				return6="$?"
+				if [ "$return5" == "0" && "$return6" == "0" ]; then
 					fail="0"
+				else
+					fail="1" #error
 				fi
 			fi
 			if [ "$fail" != "0" ]; then
