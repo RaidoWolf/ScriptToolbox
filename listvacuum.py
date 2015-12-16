@@ -59,6 +59,7 @@ def column(matrix, index):
     if type(index) in [int, float, str]:
         index = int(index)
         return [row[index] for row in matrix]
+
     elif type(index) == list:
         return [[row[i] for i in index] for row in matrix]
     else:
@@ -74,6 +75,7 @@ def lowerForeach(matrix):
             tmp.append(row.lower())
         else:
             tmp.append(row)
+    return tmp
 
 
 #//TODO: When 0 or 1 arguments given, and no help flag, or if GUI flag is called, open a Python Tk GUI
@@ -191,17 +193,33 @@ if actionRemoveDuplicates:
     tmp = [] #create new temporary list
     for row in listData: #iterate over each item in the list
         if actionCaseInsensitive: #case insensitive
-            if row[columnMainData].lower not in lowerForeach(column(tmp, columnMainData)): #if item has not already been included...
-                tmp.append(row) #add it
+            if len(row) > columnMainData:
+                try:
+                    if row[columnMainData].lower not in lowerForeach(column(tmp, columnMainData)): #if item has not already been included...
+                        tmp.append(row) #add it
+                    else:
+                        duplicatesRemoved += 1 #add to statistics
+                except IndexError:
+                    print('Caught IndexError')
             else:
-                duplicatesRemoved += 1 #add to statistics
+                tmp.append(row)
         else: #not case insensitive
-            if row[columnMainData] not in column(tmp, columnMainData): #if item has not already been included...
-                tmp.append(row) #add it
+            if len(row) > columnMainData:
+                try:
+                    if row[columnMainData] not in column(tmp, columnMainData): #if item has not already been included...
+                        tmp.append(row) #add it
+                    else:
+                        duplicatesRemoved += 1 #add to statistics
+                except IndexError:
+                    print('Caught IndexError')
             else:
-                duplicatesRemoved += 1 #add to statistics
+                tmp.append(row)
+
     listData = tmp #write out the new list
-    print(lowerForeach(column(tmp, columnMainData)))
+    try:
+        print(lowerForeach(column(tmp, columnMainData)))
+    except IndexError:
+        print('Caught IndexError')
 
 ## -- BAD EMAIL REMOVER -- ##
 if actionRemoveBadEmails:
