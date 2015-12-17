@@ -58,7 +58,7 @@ def verbose(*msg):
 def column(matrix, index):
     if type(index) in [int, float, str]:
         index = int(index)
-        return [row[index] for row in matrix]
+        return [(row[index] if len(row) > index else None) for row in matrix]
 
     elif type(index) == list:
         return [[row[i] for i in index] for row in matrix]
@@ -92,27 +92,30 @@ listFileName = sys.argv[1]
 options = sys.argv[1:]
 
 ## -- OPERATIONAL FLAGS -- ##
-actionCaseInsensitive = False       # treat all data as case insensitve
-actionRandomizeList = False         # randomize the order of the list
-actionRemoveBadEmails = False       # remove bad email addresses in the list
-actionRemoveBlankLines = False      # remove blank lines in the list
-actionRemoveBlacklist = False       # remove items that match a given blacklist
-actionRemoveDuplicates = False      # remove duplicate items from the list
-actionSplitList = False             # split list into evenly-sized parts
-outputToFile = False                # print the output to file instead of stdout
+actionCaseInsensitive       = False # treat all data as case insensitve
+actionRandomizeList         = False # randomize the order of the list
+actionRemoveBadEmails       = False # remove bad email addresses in the list
+actionRemoveBlankLines      = False # remove blank lines in the list
+actionRemoveBlacklist       = False # remove items that match a given blacklist
+actionRemoveDuplicates      = False # remove duplicate items from the list
+actionSplitList             = False # split list into evenly-sized parts
+actionStripWhitespace       = False # strip whitespace from beginning and end of list items
+outputToFile                = False # print the output to file instead of stdout
 
 ## -- OPERATIONAL VARIABLES -- ##
-blacklistFileName = ''              # filename for blacklist file
-columnMainData = 0                  # column index of main data
-columnBlacklist = 0                 # column index of blacklist data
-outputFileName = ''                 # filename for output file(s)
-splitCount = 1                      # number of lists to split into
+blacklistFileName           = ''    # filename for blacklist file
+columnMainData              = 0     # column index of main data
+columnBlacklist             = 0     # column index of blacklist data
+outputFileName              = ''    # filename for output file(s)
+splitCount                  = 1     # number of lists to split into
 
 ## -- STATISTICS VARIABLES -- ##
-duplicatesRemoved = 0               # number of duplicates removed
-badEmailsRemoved = 0                # number of bad emails removed
-blacklistRemoved = 0                # number of blacklist matches removed
-blankLinesRemoved = 0               # number of blank lines removed from the list
+duplicatesRemoved           = 0     # number of duplicates removed
+badEmailsRemoved            = 0     # number of bad emails removed
+badEmailsFixed              = 0     # number of bad emails that were fixed
+blacklistRemoved            = 0     # number of blacklist matches removed
+blankLinesRemoved           = 0     # number of blank lines removed from the list
+linesStripped               = 0     # number of lines that were stripped of whitespace
 
 ## -- COMMAND LINE FLAGS/OPTIONS PARSER -- ##
 skipNext = False
@@ -134,6 +137,7 @@ for index, option in enumerate(options):
         print('    [ --out        | -o  ] <file> : write the final list to a given file instead of stdout (also enables verbose info)')
         print('    [ --randomize  | -r  ]        : randomize items in the input list')
         print('    [ --split      | -s  ] <n>    : split the input list into a given number of subset lists')
+        print('    [ --strip      | -w  ]        : strip whitespace from beginning and end of each list item')
         sys.exit()
     # remove-bad-emails flags
     elif (optionLower == '--bad-emails') or (option == '-e'):
@@ -172,6 +176,8 @@ for index, option in enumerate(options):
         actionSplitList = True
         splitCount = int(options[index + 1]) #next option must be the number of lists
         skipNext = True #thereofre, next option cannot be a flag
+    elif (optionLower == '--strip') or (option == '-w'):
+        actionStripWhitespace = True
     else:
         if not index == 0: #we can ignore argument #1 because it's supposed to be an arbitrary file name
             #but anything else should be caught
@@ -187,6 +193,25 @@ except IOError:
     sys.exit()
 listData = csv.reader(listFile, dialect=csv.excel_tab)
 
+## -- WHITESPACE STRIPPER -- ##
+if actionStripWhitespace:
+    verbose('Stripping whitespace...')
+    tmp = [] #create new temporary list
+    for row in listData:
+        if len(row) > columnMainData:
+            if type(row[columnMainData]) == str:
+                newRow = row
+                newVal = row[columnMainData].strip()
+                newRow[columnMainData] = newVal
+                tmp.append(newRow)
+                if newVal != row[columnMainData]:
+                    linesStripped += 1
+            else:
+                tmp.append(row)
+        else:
+            tmp.append(row)
+    listData = tmp
+
 ## -- DUPLICATE REMOVER -- ##
 if actionRemoveDuplicates:
     verbose('Removing duplicates...')
@@ -194,32 +219,22 @@ if actionRemoveDuplicates:
     for row in listData: #iterate over each item in the list
         if actionCaseInsensitive: #case insensitive
             if len(row) > columnMainData:
-                try:
-                    if row[columnMainData].lower not in lowerForeach(column(tmp, columnMainData)): #if item has not already been included...
-                        tmp.append(row) #add it
-                    else:
-                        duplicatesRemoved += 1 #add to statistics
-                except IndexError:
-                    print('Caught IndexError')
+                if row[columnMainData].lower not in lowerForeach(column(tmp, columnMainData)): #if item has not already been included...
+                    tmp.append(row) #add it
+                else:
+                    duplicatesRemoved += 1 #add to statistics
             else:
                 tmp.append(row)
         else: #not case insensitive
             if len(row) > columnMainData:
-                try:
-                    if row[columnMainData] not in column(tmp, columnMainData): #if item has not already been included...
-                        tmp.append(row) #add it
-                    else:
-                        duplicatesRemoved += 1 #add to statistics
-                except IndexError:
-                    print('Caught IndexError')
+                if row[columnMainData] not in column(tmp, columnMainData): #if item has not already been included...
+                    tmp.append(row) #add it
+                else:
+                    duplicatesRemoved += 1 #add to statistics
             else:
                 tmp.append(row)
 
     listData = tmp #write out the new list
-    try:
-        print(lowerForeach(column(tmp, columnMainData)))
-    except IndexError:
-        print('Caught IndexError')
 
 ## -- BAD EMAIL REMOVER -- ##
 if actionRemoveBadEmails:
@@ -371,10 +386,13 @@ if actionRemoveDuplicates:
     verbose('Duplicates Removed:            ', str(duplicatesRemoved))
 if actionRemoveBadEmails:
     verbose('Bad Emails Removed:            ', str(badEmailsRemoved))
+    verbose('Bad Emails Fixed:              ', str(badEmailsFixed))
 if actionRemoveBlankLines:
     verbose('Blank Lines Removed:           ', str(blankLinesRemoved))
 if actionRemoveBlacklist:
     verbose('Blacklist Matches Removed:     ', str(blacklistRemoved))
+if actionStripWhitespace:
+    verbose('Lines Stripped:                ', str(linesStripped))
 if actionRemoveDuplicates or actionRemoveBadEmails or actionRemoveBlankLines or actionRemoveBlacklist or actionSplitList:
     verbose('-------------------------------------------')
     verbose('TOTAL REMOVED:                 ', str(duplicatesRemoved + badEmailsRemoved + blankLinesRemoved + blacklistRemoved))
