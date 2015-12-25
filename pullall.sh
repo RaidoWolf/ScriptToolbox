@@ -16,7 +16,9 @@ for dir in `ls "$PWD"`; do
 			git pull --recurse-submodules --no-edit
 			qprev="$?"
 			git submodule update --recursive
-			if [ "$?" != "0" ] && [ "$qprev" != "0" ]; then
+			qprev1="$?"
+			git remote prune origin
+			if [ "$?" != "0" ] || [ "$qprev" != "0" ] || [ "$qprev1" != "0" ]; then
 				echo "Pull of $dir failed. Check above for errors."
 			else
 				echo "$dir updated."
