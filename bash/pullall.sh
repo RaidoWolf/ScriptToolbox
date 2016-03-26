@@ -13,7 +13,7 @@ for dir in `ls "$PWD"`; do
 			else
 				failtoenter="0"
 			fi
-			git pull --recurse-submodules --no-edit
+			git pull --all --recurse-submodules --no-edit
 			qprev="$?"
 			git submodule update --recursive
 			qprev1="$?"
