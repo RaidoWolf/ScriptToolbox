@@ -13,7 +13,8 @@ for dir in `ls "$PWD"`; do
 			else
 				failtoenter="0"
 			fi
-			git gc --auto
+			git gc --aggressive --prune=now
+			git reflog expire --all --expire=now
 			if [ "$?" != "0" ]; then
 				echo "Prune of $dir failed. Check above for errors."
 			else
