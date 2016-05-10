@@ -191,7 +191,7 @@ try:
 except IOError:
     error('ERROR: List file does not exist.')
     sys.exit()
-listData = csv.reader(listFile, dialect=csv.excel_tab)
+listData = csv.reader(listFile)#, dialect=csv.excel_tab)
 
 ## -- WHITESPACE STRIPPER -- ##
 if actionStripWhitespace:
@@ -283,14 +283,15 @@ if actionRemoveBlacklist:
     except IOError:
         error('ERROR: Blacklist file does not exist.')
         sys.exit()
-    blacklistReader = csv.reader(blacklistFile, dialect=csv.excel_tab)
+    blacklistReader = csv.reader(blacklistFile)#, dialect=csv.excel_tab)
     tmp = []
     for row in blacklistReader:
         tmp.append(row)
     i = 0
     blacklist = []
     for row in tmp:
-        blacklist.append(row[columnBlacklist].lower())
+        if len(row) > columnBlacklist:
+            blacklist.append(row[columnBlacklist].lower())
         i += 1
     tmp = [] #create new temporary list
     i = 0
