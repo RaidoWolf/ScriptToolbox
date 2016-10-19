@@ -99,7 +99,8 @@ actionRemoveBlankLines      = False # remove blank lines in the list
 actionRemoveBlacklist       = False # remove items that match a given blacklist
 actionRemoveDuplicates      = False # remove duplicate items from the list
 actionSplitList             = False # split list into evenly-sized parts
-actionStripWhitespace       = False # strip whitespace from beginning and end of list items
+actionStripRegex            = False # strip matched regex from output
+actionTrimWhitespace        = False # trim whitespace from beginning and end of list items
 outputToFile                = False # print the output to file instead of stdout
 
 ## -- OPERATIONAL VARIABLES -- ##
@@ -108,6 +109,7 @@ columnMainData              = 0     # column index of main data
 columnBlacklist             = 0     # column index of blacklist data
 outputFileName              = ''    # filename for output file(s)
 splitCount                  = 1     # number of lists to split into
+stripRegex                  = ''    # regex to match for removal
 
 ## -- STATISTICS VARIABLES -- ##
 duplicatesRemoved           = 0     # number of duplicates removed
@@ -115,7 +117,8 @@ badEmailsRemoved            = 0     # number of bad emails removed
 badEmailsFixed              = 0     # number of bad emails that were fixed
 blacklistRemoved            = 0     # number of blacklist matches removed
 blankLinesRemoved           = 0     # number of blank lines removed from the list
-linesStripped               = 0     # number of lines that were stripped of whitespace
+linesTrimmed                = 0     # number of lines that were trimmed of whitespace
+linesStripped               = 0     # number of lines that were stripped by regex
 
 ## -- COMMAND LINE FLAGS/OPTIONS PARSER -- ##
 skipNext = False
@@ -127,17 +130,18 @@ for index, option in enumerate(options):
     # help flags
     if (optionLower == '--help') or (option == '-h'):
         print('Usage: ', scriptName, ' <input-csv-file-name> [options]')
-        print('    [ --bad-emails | -e  ]        : remove items from the input list that are not valid email addresses')
-        print('    [ --bcolumn    | -bc ] <n>    : when handling blacklist data, match against column n')
-        print('    [ --blacklist  | -bl ] <file> : remove items from the input list that match items in the blacklist csv file')
-        print('    [ --blanks     | -b  ]        : remove blank lines from the input list')
-        print('    [ --column     | -c  ] <n>    : when handling data in list, use column n')
-        print('    [ --duplicates | -d  ]        : remove duplicates from the input list')
-        print('    [ --ignorecase | -i  ]        : treat data case-insensitively (usually more strict)')
-        print('    [ --out        | -o  ] <file> : write the final list to a given file instead of stdout (also enables verbose info)')
-        print('    [ --randomize  | -r  ]        : randomize items in the input list')
-        print('    [ --split      | -s  ] <n>    : split the input list into a given number of subset lists')
-        print('    [ --strip      | -w  ]        : strip whitespace from beginning and end of each list item')
+        print('    [ --bad-emails | -e  ]         : remove items from the input list that are not valid email addresses')
+        print('    [ --bcolumn    | -bc ] <n>     : when handling blacklist data, match against column n')
+        print('    [ --blacklist  | -bl ] <file>  : remove items from the input list that match items in the blacklist csv file')
+        print('    [ --blanks     | -b  ]         : remove blank lines from the input list')
+        print('    [ --column     | -c  ] <n>     : when handling data in list, use column n')
+        print('    [ --duplicates | -d  ]         : remove duplicates from the input list')
+        print('    [ --ignorecase | -i  ]         : treat data case-insensitively (usually more strict)')
+        print('    [ --out        | -o  ] <file>  : write the final list to a given file instead of stdout (also enables verbose info)')
+        print('    [ --randomize  | -r  ]         : randomize items in the input list')
+        print('    [ --split      | -s  ] <n>     : split the input list into a given number of subset lists')
+        print('    [ --strip      | -x  ] <regex> : strip the matches of the given regex from the output')
+        print('    [ --trim       | -w  ]         : trim whitespace from beginning and end of each list item')
         sys.exit()
     # remove-bad-emails flags
     elif (optionLower == '--bad-emails') or (option == '-e'):
@@ -176,8 +180,12 @@ for index, option in enumerate(options):
         actionSplitList = True
         splitCount = int(options[index + 1]) #next option must be the number of lists
         skipNext = True #thereofre, next option cannot be a flag
-    elif (optionLower == '--strip') or (option == '-w'):
-        actionStripWhitespace = True
+    elif (optionLower == '--strip') or (option == '-x'):
+        actionStripRegex = True
+        stripRegex = str(options[index + 1]) #next option must be the regex
+        skipNext = True
+    elif (optionLower == '--trim') or (option == '-w'):
+        actionTrimWhitespace = True
     else:
         if not index == 0: #we can ignore argument #1 because it's supposed to be an arbitrary file name
             #but anything else should be caught
@@ -193,9 +201,29 @@ except IOError:
     sys.exit()
 listData = csv.reader(listFile)#, dialect=csv.excel_tab)
 
+## -- REGEX STRIPPER -- ##
+if actionStripRegex:
+    verbose('Stripping regex matches...')
+    tmp = [] #create new temporary list
+    stripRegexCompiled = re.compile(stripRegex)
+    for row in listData:
+        if len(row) > columnMainData:
+            if type(row[columnMainData]) == str:
+                newRow = row
+                newVal = stripRegexCompiled.sub('', row[columnMainData])
+                newRow[columnMainData] = newVal
+                tmp.append(newRow)
+                if newVal != row[columnMainData]:
+                    linesStripped += 1
+            else:
+                tmp.append(row)
+        else:
+            tmp.append(row)
+    listData = tmp
+
 ## -- WHITESPACE STRIPPER -- ##
-if actionStripWhitespace:
-    verbose('Stripping whitespace...')
+if actionTrimWhitespace:
+    verbose('Trimming whitespace...')
     tmp = [] #create new temporary list
     for row in listData:
         if len(row) > columnMainData:
@@ -205,7 +233,7 @@ if actionStripWhitespace:
                 newRow[columnMainData] = newVal
                 tmp.append(newRow)
                 if newVal != row[columnMainData]:
-                    linesStripped += 1
+                    linesTrimmed += 1
             else:
                 tmp.append(row)
         else:
@@ -383,6 +411,10 @@ else:
     print(outputFile.getvalue(), file=sys.stdout)
 
 ## -- STATISTICS PRINTER -- ##
+if actionTrimWhitespace:
+    verbose('Lines Trimmed:                 ', str(linesTrimmed))
+if actionStripRegex:
+    verbose('Lines Stripped:                ', str(linesStripped))
 if actionRemoveDuplicates:
     verbose('Duplicates Removed:            ', str(duplicatesRemoved))
 if actionRemoveBadEmails:
@@ -392,8 +424,6 @@ if actionRemoveBlankLines:
     verbose('Blank Lines Removed:           ', str(blankLinesRemoved))
 if actionRemoveBlacklist:
     verbose('Blacklist Matches Removed:     ', str(blacklistRemoved))
-if actionStripWhitespace:
-    verbose('Lines Stripped:                ', str(linesStripped))
 if actionRemoveDuplicates or actionRemoveBadEmails or actionRemoveBlankLines or actionRemoveBlacklist or actionSplitList:
     verbose('-------------------------------------------')
     verbose('TOTAL REMOVED:                 ', str(duplicatesRemoved + badEmailsRemoved + blankLinesRemoved + blacklistRemoved))
