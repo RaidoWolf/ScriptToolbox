@@ -199,7 +199,7 @@ try:
 except IOError:
     error('ERROR: List file does not exist.')
     sys.exit()
-listData = csv.reader(listFile)#, dialect=csv.excel_tab)
+listData = list(csv.reader(listFile))#, dialect=csv.excel_tab)
 
 ## -- REGEX STRIPPER -- ##
 if actionStripRegex:
