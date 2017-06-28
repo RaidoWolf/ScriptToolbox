@@ -1,0 +1,19 @@
+#!/bin/bash
+echo "MAKE SURE YOU KNOW WHAT YOU'RE DOING! THIS SCRIPT CHANGES PERMISSIONS AND CAN BREAK THINGS!"
+echo "ALSO MAKE SURE THE DIRECTORY DOESN’T CONTAIN ANYTHING THAT IS SUPPOSED TO HAVE LOCKED DOWN PERMISSIONS."
+if [ "$1" != "" ]; then
+    dir="$1"
+else
+    echo "directory for which to change permissions:"
+    read dir
+fi
+echo "is this correct: (y/n)"
+echo "$dir"
+read correct
+if [ "$correct" == "y" ]; then
+    sudo find . -type d -not -perm -555 -exec chmod a+r,a+x {} \;
+    sudo find . -type f -not -perm -444 -exec chmod a+r {} \;
+    echo “Complete!”
+    exit
+fi
+exit
