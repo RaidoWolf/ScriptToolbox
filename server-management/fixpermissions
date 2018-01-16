@@ -1,0 +1,48 @@
+#!/bin/bash
+
+echo "MAKE SURE YOU KNOW WHAT YOU'RE DOING! THIS SCRIPT CHANGES PERMISSIONS AND CAN BREAK THINGS!"
+echo "ALSO MAKE SURE THE DIRECTORY DOESN’T CONTAIN ANYTHING THAT IS SUPPOSED TO HAVE LOCKED DOWN PERMISSIONS."
+
+if [ "$1" != "" ]; then
+    dir="$1"
+else
+    echo "directory for which to change permissions:"
+    read dir
+fi
+
+if [ "$2" != "" ]; then
+    write="$2"
+else
+    echo "enable write permissions?:"
+    read write
+fi
+
+echo "is this correct: (y/n)"
+echo "$dir"
+read correct
+
+if [ "$correct" == "y" ]; then
+
+    if [ "$write" == "y" ]; then
+
+        sudo find $dir -type d -not -perm -555 -exec chmod a+r,a+x {} \;
+        sudo find $dir -type f -not -perm -444 -exec chmod a+r {} \;
+
+    else
+
+        sudo find $dir -type d -not -perm -777 -exec chmod a+r,a+w,a+x {} \;
+        sudo find $dir -type f -not -perm -666 -exec chmod a+r,a+w {} \;
+
+    fi
+
+    echo "Complete!"
+    exit
+
+else
+
+    echo "Canceled."
+    exit
+
+fi
+
+exit
