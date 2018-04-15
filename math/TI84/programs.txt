@@ -1,0 +1,14 @@
+Chemistry Programs for TI-83/84 (.8XP)
+
+c2f - Temperature Celsius to Fahrenheit conversion				57 bytes
+c2k - Temperature Celsius to Kelvin conversion					50 bytes
+cf2l - Volume Cubic Feet to Liters conversion					58 bytes
+f2c - Temperature Fahrenheit to Celsius conversion				57 bytes
+f2k - Temperature Fahrenheit to Kelvin conversion				62 bytes
+l2cf - Volume Liters to Cubic Feet conversion					58 bytes
+n4ige - molar mass calculation by ideal gas law equation			97 bytes
+p4ige - pressure calculation by ideal gas law equation				96 bytes
+pp2 - Partial pressures calculation of a 2 gas mixture				188 bytes
+pp3 - Partial pressures calculation of a 3 gas mixture				291 bytes
+t4ige - Temperature calculation by ideal gas law equation			97 bytes
+v4ige - volume calculation by ideal gas law equation				96 bytes
