@@ -20,6 +20,8 @@ if [ -d "aac" ]; then
 	if [ "$?" != "0" ]; then
 		echo "Unable to enter aac directory. Exiting."
 		exit
+	else
+		cd ..
 	fi
 elif [ ! -e "aac" ]; then
 	echo "Creating aac directory."
@@ -36,7 +38,7 @@ else
 fi
 
 for i in *.flac; do
-	ffmpeg -i "$i" -c:a aac -b:a 320k "aac/${i/%.flac/.aac}"
+	ffmpeg -i "$i" -c:a aac -b:a 256k "aac/${i/%.flac/.m4a}"
 	if [ "$?" != "0" ]; then
 		echo "Failed to transcode \"$i\"."
 	fi

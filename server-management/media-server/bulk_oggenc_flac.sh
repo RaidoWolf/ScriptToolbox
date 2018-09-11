@@ -29,6 +29,8 @@ if [ -d "ogg" ]; then
 	if [ "$?" != "0" ]; then
 		echo "Unable to enter ogg directory. Exiting."
 		exit
+	else
+		cd ..
 	fi
 elif [ ! -e "ogg" ]; then
 	echo "Creating ogg directory."
