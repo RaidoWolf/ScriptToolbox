@@ -234,6 +234,19 @@ def requireFfmpeg ():
     return True
 
 def writeConfigFile ():
+    global FORCE_REENCODE
+    global DO_ENCODE_OPUS
+    global DO_ENCODE_VORBIS
+    global DO_ENCODE_MP3
+    global DO_ENCODE_AAC
+    global OPUS_TARGET_BITRATE
+    global VORBIS_QUALITY
+    global LAME_BASELINE_BITRATE
+    global AAC_BITRATE
+    global DO_PASSTHROUGH_COVER
+    global DO_COPY_EXT_COVERS
+    global DO_EMBED_EXT_COVERS
+    global DO_EXTRACT_COVERS
     with open(os.path.join(LIBRARY_ROOT, "mediamanage.ini"), "w") as file:
         config = configparser.ConfigParser();
         config["Process"] = {
@@ -278,7 +291,7 @@ def parseConfig ():
             config.read_file(file)
             if config.has_section("Process"):
                 if config.has_option("Process", "force_reencode"):
-                    FORCE_REENCODE = True if config["Process"]["force_reencode"] else False
+                    FORCE_REENCODE = True if config["Process"]["force_reencode"] == "True" else False
             if config.has_section("Opus"):
                 if config.has_option("Opus", "enabled"):
                     DO_ENCODE_OPUS = True if config["Opus"]["enabled"] == "True" else False
@@ -375,7 +388,7 @@ def parseArgs ():
     if args.vorbis_quality is not None:
         VORBIS_QUALITY =        args.vorbis_quality
     if args.mp3_bitrate is not None:
-        LAME_BASLINE_BITRATE =  args.mp3_bitrate
+        LAME_BASELINE_BITRATE =  args.mp3_bitrate
     if args.aac_bitrate is not None:
         AAC_BITRATE =           args.aac_bitrate * 1000
     if args.cover_passthrough is not False:
@@ -425,13 +438,17 @@ if DO_COPY_EXT_COVERS:
                 rel = os.path.relpath(path, ORIGINAL_ROOT)
                 if DO_ENCODE_OPUS:
                     verbose("copying cover image to opus >> ", rel)
+                    ensurePath(os.path.join(LIBRARY_ROOT, 'opus', os.path.dirname(rel)))
                     copy2(path, os.path.join(LIBRARY_ROOT, 'opus', rel))
                 if DO_ENCODE_VORBIS:
                     verbose("copying cover image to vorbis >> ", rel)
+                    ensurePath(os.path.join(LIBRARY_ROOT, 'vorbis', os.path.dirname(rel)))
                     copy2(path, os.path.join(LIBRARY_ROOT, 'vorbis', rel))
                 if DO_ENCODE_MP3:
                     verbose("copying cover image to mp3 >> ", rel)
+                    ensurePath(os.path.join(LIBRARY_ROOT, 'mp3', os.path.dirname(rel)))
                     copy2(path, os.path.join(LIBRARY_ROOT, 'mp3', rel))
                 if DO_ENCODE_AAC:
                     verbose("copying cover image to aac >> ", rel)
+                    ensurePath(os.path.join(LIBRARY_ROOT, 'aac', os.path.dirname(rel)))
                     copy2(path, os.path.join(LIBRARY_ROOT, 'aac', rel))
